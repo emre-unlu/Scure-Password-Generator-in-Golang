@@ -1,4 +1,4 @@
-package go_passwordgen
+package passwordgen
 
 import (
 	"crypto/rand"
