@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	specialChars = "!@#$%^&*()_+{}:\"<>?|[];',./`~"
+	specialChars = "!@#$%^&*()_+{}:<>?|[];',./`~"
 	lowercase    = "abcdefghijklmnopqrstuvwxyz"
 	uppercase    = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	numbers      = "0123456789"
@@ -20,21 +20,33 @@ func GeneratePassword(length int) (string, error) {
 
 	allChars := []string{specialChars, lowercase, uppercase, numbers}
 	password := make([]byte, length)
+	usedPositions := make(map[int]bool)
 
+	// Step 1: Ensure the first 4 characters include one from each category
 	// Step 1: Ensure one character from each category
 	for i := 0; i < 4; i++ {
 		char, err := pickCharFromCategory(allChars[i])
 		if err != nil {
 			return "", err
 		}
-		pos, err := randomInt(i, length-1)
-		if err != nil {
-			return "", err
+
+		// Find an unused position between 0 and 3
+		var pos int
+		for {
+			pos, err = randomInt(0, 3)
+			if err != nil {
+				return "", err
+			}
+			if !usedPositions[pos] {
+				usedPositions[pos] = true
+				break
+			}
 		}
-		password[i], password[pos] = password[pos], char
+
+		password[pos] = char
 	}
 
-	// Step 2: Fill the remaining characters
+	// Step 2: Fill the remaining characters randomly
 	for i := 4; i < length; i++ {
 		categoryIndex, err := randomInt(0, 3)
 		if err != nil {
